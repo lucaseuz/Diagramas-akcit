@@ -1,0 +1,42 @@
+sequenceDiagram
+    autonumber
+    actor P as Participante
+    participant W as Aplicação Web
+    participant A as API Eventus
+    participant D as Banco de Dados
+    participant G as Gateway de Pagamento
+    participant N as Serviço de Notificação
+
+    P->>W: Seleciona evento pago
+    W->>A: Solicita inscrição
+    A->>D: Verifica disponibilidade de vagas
+    alt Evento sem vagas
+        D-->>A: Vagas esgotadas
+        A-->>W: Disponibiliza lista de espera
+        W-->>P: Exibe opção de entrar na lista
+    else Vaga disponível
+        D-->>A: Vaga disponível
+        A->>D: Reserva vaga por 15 minutos
+        D-->>A: Reserva confirmada
+        A-->>W: Checkout liberado
+        P->>W: Informa dados para pagamento
+        W->>A: Solicita processamento
+        A->>G: Envia solicitação de pagamento
+        alt Pagamento aprovado
+            G-->>A: Pagamento confirmado
+            A->>D: Confirma inscrição e ocupa vaga
+            A->>N: Solicita envio do comprovante
+            N-->>P: Envia confirmação da inscrição
+            A-->>W: Inscrição confirmada
+            W-->>P: Exibe confirmação
+        else Pagamento recusado
+            G-->>A: Pagamento recusado
+            A-->>W: Informa falha no pagamento
+            W-->>P: Solicita nova tentativa
+        else Reserva expirada
+            A->>D: Libera vaga reservada
+            A-->>W: Checkout expirado
+            W-->>P: Informa expiração da reserva
+        end
+    end
+
