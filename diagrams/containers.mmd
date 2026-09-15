@@ -1,0 +1,22 @@
+flowchart TB
+    participante["Participante<br/>Consulta eventos, realiza inscrições<br/>e acessa certificados"]
+    organizador["Organizador<br/>Cadastra eventos e acompanha inscrições"]
+    palestrante["Palestrante<br/>Consulta programação e participantes"]
+
+    subgraph eventus["Sistema Eventus"]
+        web["Aplicação Web<br/>Interface para participantes,<br/>organizadores e palestrantes"]
+        api["API Eventus<br/>Regras de negócio, inscrições,<br/>vagas, pagamentos e certificados"]
+        db[("Banco de Dados<br/>Usuários, eventos, inscrições,<br/>atividades e lista de espera")]
+        web -->|"HTTPS / JSON"| api
+        api -->|"Leitura e gravação"| db
+    end
+
+    pagamento["Gateway de Pagamento<br/>Sistema externo"]
+    notificacao["Serviço de Notificação<br/>E-mail / Push"]
+    participante -->|"Acessa pelo navegador"| web
+    organizador -->|"Gerencia eventos"| web
+    palestrante -->|"Consulta atividades"| web
+    api -->|"Solicita processamento de pagamento"| pagamento
+    pagamento -->|"Confirma ou rejeita pagamento"| api
+    api -->|"Solicita envio de notificações"| notificacao
+
